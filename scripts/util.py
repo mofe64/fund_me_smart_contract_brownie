@@ -2,13 +2,17 @@ from brownie import accounts, config, network, MockV3Aggregator
 from web3 import Web3
 
 LOCAL_BLOCK_CHAIN_ENV = ["development", "ganache-local"]
+FORKED_LOCAL_ENV = ["mainnet-fork", "mainnet-fork-dev"]
 
 DECIMALS = 8
 STARTING_PRICE = 200000000000
 
 
 def get_account():
-    if network.show_active() in LOCAL_BLOCK_CHAIN_ENV:
+    if (
+        network.show_active() in LOCAL_BLOCK_CHAIN_ENV
+        or network.show_active() in FORKED_LOCAL_ENV
+    ):
         return accounts[0]
     else:
         return accounts.add(config["wallets"]["from_key"])
