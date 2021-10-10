@@ -1,22 +1,17 @@
 from brownie import FundMe, network, config, MockV3Aggregator
-from scripts.util import get_account
+from scripts.util import deploy_mocks, get_account, LOCAL_BLOCK_CHAIN_ENV
 
 
 def deploy_fund_me():
     account = get_account()
-
-    if network.show_active() != "development":
+    if network.show_active() not in LOCAL_BLOCK_CHAIN_ENV:
         price_feed_address = config["networks"][network.show_active()][
             "eth_usd_price_feed"
         ]
     else:
-        print(f"The active network is {network.show_active()}")
-        print("Deploying mocks ...")
-        mock_aggregator = MockV3Aggregator.deploy(
-            18, 2000000000000000000000, {"from": account}
-        )
-        price_feed_address = mock_aggregator.address
-        print("Mock deployed")
+        deploy_mocks()
+        price_feed_address = MockV3Aggregator[-1].address
+
     fund_me = FundMe.deploy(
         price_feed_address,
         {"from": account},
